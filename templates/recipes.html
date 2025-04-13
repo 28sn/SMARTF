@@ -1,0 +1,115 @@
+<!-- recipes.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>🍽 اقتراحات الوصفات</title>
+  <style>
+    body {
+      background: url('/static/backgroun.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #007acc;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: auto;
+    }
+    li {
+      background: rgba(255, 255, 255, 0.8);
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      direction: rtl;
+      text-align: right;
+    }
+    img {
+      border-radius: 8px;
+      margin: 10px 0;
+      width: 100%;
+      max-width: 220px;
+    }
+    button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005a9c;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍽 وصفات مقترحة من الثلاجة الذكية</h1>
+  <section>
+    <h2>📚 وصفات محلية</h2>
+    <ul id="localRecipes"></ul>
+  </section>
+  <section>
+    <h2>🌍 وصفات من الإنترنت</h2>
+    <ul id="onlineRecipes"></ul>
+  </section>
+  <script>
+    fetch("/api/recipes")
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById("localRecipes");
+        if (!data.length) return ul.innerHTML = "<li>❌ لا توجد وصفات محلية</li>";
+        data.forEach(recipe => {
+          let html = `<strong>${recipe.name}</strong><br>`;
+          html += `✅ المتوفر: ${recipe.available.join(", ")}<br>`;
+          if (recipe.missing.length) {
+            html += `❌ الناقص: ${recipe.missing.join(", ")}<br>`;
+            html += `<button onclick='addToCart(${JSON.stringify(recipe.missing)})'>➕ أضف إلى السلة</button>`;
+          } else {
+            html += `<span style='color:green'>✔️ جميع المكونات متوفرة</span>`;
+          }
+          ul.innerHTML += `<li>${html}</li>`;
+        });
+      });
+
+    fetch("/api/recipes/online")
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById("onlineRecipes");
+        if (!data.length) return ul.innerHTML = "<li>❌ لا توجد وصفات من الإنترنت</li>";
+        data.forEach(recipe => {
+          let html = `<strong>${recipe.name}</strong><br>`;
+          html += `<img src="${recipe.thumbnail}"><br>`;
+          html += `✅ المتوفر: ${recipe.available.join(", ")}<br>`;
+          if (recipe.missing.length) {
+            html += `❌ الناقص: ${recipe.missing.join(", ")}<br>`;
+            html += `<button onclick='addToCart(${JSON.stringify(recipe.missing)})'>➕ أضف إلى السلة</button>`;
+          }
+          html += `<br><a href="${recipe.source}" target="_blank">📖 اقرأ الوصفة</a>`;
+          ul.innerHTML += `<li>${html}</li>`;
+        });
+      });
+
+    function addToCart(items) {
+      fetch("/api/shopping/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items })
+      }).then(() => alert("✅ تمت الإضافة إلى السلة"));
+    }
+  </script>
+</body>
+</html>

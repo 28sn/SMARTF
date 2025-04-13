@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدخال تاريخ الانتهاء</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4faff;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+      direction: rtl;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 30px;
+      margin: 0 auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007acc;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .input-group input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    .submit-button {
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      background-color: #007acc;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .submit-button:hover {
+      background-color: #005fa3;
+    }
+
+    .instruction-text {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>إدخال تاريخ انتهاء المنتج</h1>
+
+    <p class="instruction-text">يرجى إدخال تاريخ انتهاء المنتج باستخدام التقويم أدناه.</p>
+
+    <form method="POST" action="{{ url_for('save_product_expiration') }}">
+      <input type="hidden" name="barcode" value="{{ barcode }}">
+
+      <div class="input-group">
+        <label for="expirationDate">تاريخ الانتهاء:</label>
+        <input type="date" id="expirationDate" name="expirationDate" required>
+      </div>
+
+      <div class="button-container">
+        <button type="submit" class="submit-button">حفظ المنتج</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+Barcode: 6291100513956
+Product Name: Orange Juice
+Brand: topfruit
+Ingredients: Orange, Water, Vitamin C
+Energy: 76 kcal
+==================================================
+Barcode: 9501100014245
+Product Name: Chips Oman
+Brand: Al Jufair Food
+Ingredients: fresh potato, palm oil, chili, salt
+Energy: 83 kcal
+==================================================

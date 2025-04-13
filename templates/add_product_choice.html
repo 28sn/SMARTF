@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>➕ إدخال منتج</title>
+  <style>
+    body {
+      background-color: #f2faff;
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 60px 20px;
+      direction: rtl;
+    }
+
+    h1 {
+      color: #007acc;
+      font-size: 28px;
+      margin-bottom: 40px;
+    }
+
+    .option {
+      background-color: white;
+      border: 2px solid #007acc;
+      border-radius: 16px;
+      padding: 25px;
+      margin: 20px auto;
+      max-width: 400px;
+      font-size: 20px;
+      color: #007acc;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option:hover {
+      background-color: #007acc;
+      color: white;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <h1>كيف ترغب بإدخال المنتج؟</h1>
+
+  <div class="option" onclick="location.href='/add_product'">
+    ✍️ إدخال يدوي (اسم، تاريخ، مكونات...)
+  </div>
+
+  <div class="option" onclick="location.href='/scan_mobile_full'">
+    📱 امسح الباركود من الجوال
+  </div>
+  
+</body>
+</html>

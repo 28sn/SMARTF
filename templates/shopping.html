@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>🛒 سلة التسوق</title>
+  <style>
+    body {
+      background: url('/static/backgroun.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #007acc;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    li {
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 16px;
+      direction: rtl;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    button.remove {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.remove:hover {
+      background-color: #e60000;
+    }
+    form {
+      margin-top: 30px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 200px;
+    }
+    button.add, button.sms {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+    button.add:hover, button.sms:hover {
+      background-color: #005a9c;
+    }
+    #qrImage {
+      max-width: 250px;
+      display: none;
+      margin: 20px auto;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 سلة التسوق</h1>
+
+  <section>
+    <ul id="cartItems">
+      {% if cart %}
+        {% for item in cart %}
+          <li>
+            <span>{{ item.name }} × {{ item.quantity }}</span>
+            <button class="remove" onclick="removeItem('{{ item.name }}')">🗑 حذف</button>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>🧺 السلة فارغة</li>
+      {% endif %}
+    </ul>
+    <button onclick="showQR()" class="add">📷 عرض كود QR</button>
+  </section>
+
+  <div>
+    <img id="qrImage" src="" alt="كود QR لسلة التسوق">
+  </div>
+
+  <form onsubmit="return addManualItem(this)">
+    <input type="text" name="item" placeholder="اسم العنصر" required>
+    <button type="submit" class="add">➕ أضف يدويًا</button>
+  </form>
+
+  <script>
+    function loadCart() {
+      fetch("/api/shopping")
+        .then(res => res.json())
+        .then(data => {
+          const ul = document.getElementById("cartItems");
+          ul.innerHTML = "";
+          if (!data.length) {
+            ul.innerHTML = "<li>🧺 السلة فارغة</li>";
+            return;
+          }
+          data.forEach(item => {
+            ul.innerHTML += `
+              <li>
+                <span>${item.name} × ${item.quantity}</span>
+                <button class="remove" onclick="removeItem('${item.name}')">🗑 حذف</button>
+              </li>`;
+          });
+        });
+    }
+
+    function addManualItem(form) {
+      const item = form.item.value.trim();
+      if (!item) return false;
+      fetch("/api/shopping/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [item] })
+      }).then(() => {
+        form.reset();
+        loadCart();
+      });
+      return false;
+    }
+
+    function removeItem(itemName) {
+      fetch("/api/shopping/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item: itemName })
+      }).then(() => loadCart());
+    }
+
+    function showQR() {
+      fetch("/api/qr_shopping")
+        .then(res => {
+          if (res.status === 200) return res.blob();
+          else throw new Error("❌ لا توجد سلة أو حدث خطأ");
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const img = document.getElementById("qrImage");
+          img.src = url;
+          img.style.display = "block";
+        })
+        .catch(() => alert("❌ لا توجد عناصر في السلة"));
+    }
+
+    loadCart();
+    setInterval(loadCart, 5000);
+  </script>
+</body>
+</html>

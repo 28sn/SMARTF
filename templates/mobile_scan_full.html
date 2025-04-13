@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📷 مسح الباركود</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f1faff;
+    }
+    h1 {
+      color: #007acc;
+    }
+    #reader {
+      width: 300px;
+      margin: 0 auto;
+    }
+    #status {
+      font-size: 18px;
+      margin-top: 20px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 امسح الباركود لإضافة منتج</h1>
+  <div id="reader"></div>
+  <p id="status">📸 انتظر حتى يتم الكشف عن الباركود...</p>
+
+  <script>
+    function onScanSuccess(decodedText, decodedResult) {
+      document.getElementById("status").innerText = "🔄 جارٍ معالجة المنتج...";
+      fetch("/api/auto_add_product?barcode=" + encodeURIComponent(decodedText))
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = "/enter_expiration_date?barcode=" + encodeURIComponent(decodedText);
+          } else {
+            document.getElementById("status").innerText = "❌ " + (data.message || "لم يتم العثور على المنتج.");
+          }
+        })
+        .catch(err => {
+          document.getElementById("status").innerText = "❌ فشل الاتصال بالخادم.";
+        });
+    }
+
+    function onScanFailure(error) {
+      // تجاهل الأخطاء اللحظية
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess,
+      onScanFailure
+    );
+  </script>
+</body>
+</html>

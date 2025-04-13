@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>المنتج غير موجود</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4faff;
+      color: #333;
+      padding: 20px;
+      text-align: center;
+      direction: rtl;
+    }
+
+    h1 {
+      color: #007acc;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .submit-button {
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background-color: #007acc;
+      color: white;
+    }
+
+    .submit-button:hover {
+      background-color: #005fa3;
+    }
+
+    .submit-button:active {
+      background-color: #003d7a;
+    }
+    
+    .message {
+      font-size: 16px;
+      color: red;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>المنتج غير موجود أو لم يتم التعرف عليه</h1>
+
+  <p class="message">{{ message }}</p>
+  
+  <h3>يرجى إدخال بيانات المنتج يدويًا:</h3>
+  
+  <form method="POST" action="{{ url_for('add_product') }}">
+    <div class="input-group">
+      <label for="productName">اسم المنتج:</label>
+      <input type="text" id="productName" name="productName" required placeholder="أدخل اسم المنتج">
+    </div>
+
+    <div class="input-group">
+      <label for="brand">العلامة التجارية:</label>
+      <input type="text" id="brand" name="brand" required placeholder="أدخل العلامة التجارية">
+    </div>
+
+    <div class="input-group">
+      <label for="ingredients">المكونات:</label>
+      <input type="text" id="ingredients" name="ingredients" placeholder="أدخل المكونات (اختياري)">
+    </div>
+
+    <div class="input-group">
+      <label for="energy">الطاقة (بالكيلو كالوري):</label>
+      <input type="number" id="energy" name="energy" placeholder="أدخل الطاقة (اختياري)">
+    </div>
+
+    <div class="input-group">
+      <label for="expirationDate">تاريخ الانتهاء:</label>
+      <input type="date" id="expirationDate" name="expirationDate" required>
+    </div>
+
+    <div class="input-group">
+      <label for="barcode">الباركود:</label>
+      <input type="text" id="barcode" name="barcode" value="{{ barcode }}" readonly>
+    </div>
+
+    <button type="submit" class="submit-button">إضافة المنتج</button>
+  </form>
+</body>
+</html>
