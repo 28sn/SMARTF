@@ -52,13 +52,19 @@
       // تجاهل الأخطاء اللحظية
     }
 
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      onScanSuccess,
-      onScanFailure
-    );
+const html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+  {
+    facingMode: { exact: "environment" },  // الكاميرا الخلفية (إجباري)
+    width: { exact: 1280 },                // عرض إجباري
+    height: { exact: 720 }                 // ارتفاع إجباري
+  },
+  { fps: 10, qrbox: 250 },
+  onScanSuccess,
+  onScanFailure
+);
+
   </script>
 </body>
 </html>
