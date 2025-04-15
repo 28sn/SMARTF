@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📦 استخدام منتج من الثلاجة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #f4faff;
+      --text: #333;
+      --card: white;
+      --line: #eee;
+      --primary: #007acc;
+      --full-btn: #28a745;
+      --part-btn: #f0ad4e;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --card: #1e1e1e;
+      --line: #333;
+      --primary: #66d9ef;
+      --full-btn: #44d17e;
+      --part-btn: #f3bc60;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      direction: rtl;
+      padding: 20px;
+      text-align: center;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+
+    .group-box {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: var(--card);
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    .group-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 2fr;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      width: 60px;
+    }
+
+    button {
+      padding: 6px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-use {
+      background-color: var(--full-btn);
+      color: white;
+    }
+
+    .btn-partial {
+      background-color: var(--part-btn);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 استخدام منتج من الثلاجة</h1>
+  <div id="productArea">⏳ جارٍ تحميل المنتجات...</div>
+
+  <script>
+    function loadProducts() {
+      fetch("/api/grouped_products")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById("productArea");
+          container.innerHTML = "";
+          if (!Object.keys(data).length) {
+            container.innerHTML = "<p>🚫 لا توجد منتجات حالياً.</p>";
+            return;
+          }
+
+          for (const name in data) {
+            const group = data[name];
+            const groupBox = document.createElement("div");
+            groupBox.className = "group-box";
+
+            const title = document.createElement("div");
+            title.className = "group-title";
+            title.innerText = `🧾 ${name} (${group.length} نسخة${group.length > 1 ? " - استخدم الأقرب للانتهاء!" : ""})`;
+            groupBox.appendChild(title);
+
+            group.forEach(item => {
+              const row = document.createElement("div");
+              row.className = "product-row";
+              row.innerHTML = `
+                <div><span class="label">📅 ${item.expires || "بدون تاريخ"}</span></div>
+                <div><span class="label">الكمية: ${item.quantity || "1"}</span></div>
+
+                <form method="POST" action="/use_full">
+                  <input type="hidden" name="barcode" value="${item.barcode}">
+                  <button class="btn-use">استخدم كامل</button>
+                </form>
+
+                <form method="POST" action="/use_partial" style="display: flex; align-items: center;">
+                  <input type="hidden" name="barcode" value="${item.barcode}">
+                  <input type="number" step="0.1" name="amount" placeholder="كمية" required>
+                  <button class="btn-partial">جزء</button>
+                </form>
+              `;
+              groupBox.appendChild(row);
+            });
+
+            container.appendChild(groupBox);
+          }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      loadProducts();
+    });
+  </script>
+
+  <div style="margin-top: 40px;">
+    <a href="/">
+      <button style="background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 16px; cursor: pointer;">
+        🏠 العودة إلى الصفحة الرئيسية
+      </button>
+    </a>
+  </div>
+</body>
+</html>

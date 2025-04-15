@@ -1,0 +1,24 @@
+Product Information:
+Product Name: قاشع
+Brand: عمان
+Ingredients: 
+Energy: 
+Expiration Date: 2026-02-02
+Barcode: 6281007023535
+==================================================
+Product Information:
+Product Name: قاشع
+Brand: سس
+Ingredients: قاشع
+Energy: 
+Expiration Date: 4532-02-03
+Barcode: 9501100014245
+==================================================
+Product Information:
+Product Name: قاشع
+Brand: ففف
+Ingredients: 
+Energy: 
+Expiration Date: 3322-02-03
+Barcode: 6281007023535
+==================================================

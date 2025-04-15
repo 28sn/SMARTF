@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📝 Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: url('/static/backgroun.png') no-repeat center center fixed;
+      --card: #ffffff;
+      --text: #333;
+      --primary: #28a745;
+      --primary-hover: #1e7e34;
+      --link: #007acc;
+      --error: red;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #eee;
+      --primary: #44d17e;
+      --primary-hover: #28a745;
+      --link: #66d9ef;
+      --error: #ff6b6b;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .box {
+      background: var(--card);
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    input {
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .switch {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    .error {
+      color: var(--error);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>📝 Register</h1>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="POST" action="/register">
+      <input type="text" name="username" placeholder="Choose a username" required>
+      <input type="password" name="password" placeholder="Choose a password" required>
+      <button type="submit">Create Account</button>
+    </form>
+    <div class="switch">
+      Already have an account? <a href="/login">Login</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    });
+  </script>
+</body>
+</html>

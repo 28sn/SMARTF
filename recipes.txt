@@ -1,0 +1,32 @@
+name: Chicken Kabsa
+ingredients: chicken, rice, tomato, onion, garlic, spices, dried lime, salt
+
+name: Maqluba
+ingredients: beef, eggplant, rice, potato, spices, onion
+
+name: Fattoush
+ingredients: lettuce, tomato, cucumber, parsley, pomegranate molasses, toasted bread, olive oil
+
+name: Hummus
+ingredients: chickpeas, tahini, lemon, garlic, olive oil
+
+name: Lentil Soup
+ingredients: lentils, carrot, onion, cumin, chicken broth, salt, oil
+
+name: Meat Stew
+ingredients: meat, potato, tomato, carrot, onion, garlic, spices
+
+name: Mansaf
+ingredients: yogurt, rice, lamb, shrak bread, almonds, pine nuts
+
+name: Mandi
+ingredients: lamb, rice, onion, charcoal, mandi spices
+
+name: Koshari
+ingredients: lentils, rice, pasta, tomato sauce, fried onions
+
+name: Molokhia
+ingredients: molokhia, chicken broth, garlic, coriander, oil
+
+name: سحناه
+ingredients: قاشع, خبز, ماء, سمن, ملح

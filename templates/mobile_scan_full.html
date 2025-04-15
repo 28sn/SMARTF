@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📷 مسح الباركود</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2faff;
+      text-align: center;
+      padding: 30px;
+      direction: rtl;
+    }
+    h1 {
+      color: #007acc;
+    }
+    #reader {
+      width: 100%;
+      max-width: 360px;
+      margin: 20px auto;
+      display: none;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #fff;
+    }
+    #status {
+      font-size: 16px;
+      margin-top: 20px;
+      color: #007acc;
+    }
+    #cameraSelect, #resolutionSelect {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .start-btn {
+      margin-top: 15px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #scannedText {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <h1>📦 امسح الباركود لإضافة منتج</h1>
+
+  <select id="cameraSelect"></select>
+  <select id="resolutionSelect">
+    <option value="320x240">منخفضة 320x240</option>
+    <option value="640x480" selected>متوسطة 640x480</option>
+    <option value="1280x720">عالية 1280x720</option>
+  </select>
+  <button class="start-btn" onclick="startSelectedCamera()">🎬 بدء المسح</button>
+
+  <div id="reader"></div>
+  <div id="status">📸 اختر الكاميرا ثم اضغط بدء المسح</div>
+  <div id="scannedText"></div>
+
+  <script>
+    const reader = new Html5Qrcode("reader");
+    const cameraSelect = document.getElementById("cameraSelect");
+    const resolutionSelect = document.getElementById("resolutionSelect");
+    let cameras = [];
+
+    function onScanSuccess(decodedText) {
+      document.getElementById("scannedText").innerText = `✅ الباركود: ${decodedText}`;
+      document.getElementById("status").innerText = "🔄 جارٍ معالجة المنتج...";
+
+      reader.stop().then(() => {
+        fetch("/api/auto_add_product?barcode=" + encodeURIComponent(decodedText))
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              window.location.href = "/enter_expiration_date?barcode=" + encodeURIComponent(decodedText);
+            } else {
+              document.getElementById("status").innerText = "❌ " + (data.message || "لم يتم العثور على المنتج.");
+            }
+          })
+          .catch(() => {
+            document.getElementById("status").innerText = "❌ فشل الاتصال بالخادم.";
+          });
+      });
+    }
+
+    function onScanFailure() {
+      // تجاهل مؤقتًا
+    }
+
+    function parseResolution(value) {
+      const [w, h] = value.split("x").map(Number);
+      return { width: w, height: h };
+    }
+
+    function startSelectedCamera() {
+      const selectedId = cameraSelect.value;
+      const resolution = parseResolution(resolutionSelect.value);
+      if (!selectedId) {
+        alert("❗ اختر الكاميرا أولاً");
+        return;
+      }
+
+      document.getElementById("reader").style.display = "block";
+      reader.start(
+        { deviceId: { exact: selectedId } },
+        { fps: 10, qrbox: 250, ...resolution },
+        onScanSuccess,
+        onScanFailure
+      ).then(() => {
+        document.getElementById("status").innerText = "📡 جاري المسح...";
+      }).catch(err => {
+        document.getElementById("status").innerText = "❌ تعذر تشغيل الكاميرا: " + err;
+      });
+    }
+
+    Html5Qrcode.getCameras().then(devices => {
+      cameras = devices;
+      if (cameras.length === 0) {
+        document.getElementById("status").innerText = "❌ لم يتم العثور على كاميرا.";
+        return;
+      }
+
+      cameras.forEach(cam => {
+        const option = document.createElement("option");
+        option.value = cam.id;
+        option.text = cam.label || "كاميرا";
+        cameraSelect.appendChild(option);
+      });
+
+      document.getElementById("status").innerText = "✅ الكاميرا جاهزة، اختر واحدة وابدأ المسح.";
+    }).catch(() => {
+      document.getElementById("status").innerText = "❌ تعذر الوصول إلى الكاميرا.";
+    });
+  </script>
+</body>
+</html>

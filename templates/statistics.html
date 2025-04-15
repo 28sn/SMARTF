@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 إحصائيات الثلاجة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f4faff;
+      --text: #333;
+      --card: #fff;
+      --primary: #007acc;
+    }
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --card: #1e1e1e;
+      --primary: #66d9ef;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+      text-align: center;
+      direction: rtl;
+    }
+    h1 {
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background-color: var(--card);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 10px auto;
+      max-width: 500px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-size: 18px;
+    }
+    #usageChart {
+      max-width: 700px;
+      margin: 40px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 إحصائيات وتحليلات الثلاجة</h1>
+
+  <div class="stat-card">📦 عدد المنتجات المستخدمة هذا الأسبوع: <span id="usedTotal">--</span></div>
+  <div class="stat-card">🔥 أكثر منتج استخداماً: <span id="topProduct">--</span></div>
+  <div class="stat-card">🚮 المنتجات المهدورة: <span id="wastedTotal">--</span></div>
+
+  <canvas id="usageChart"></canvas>
+
+  <a href="/" style="display:block; margin-top:40px; color:var(--primary); font-weight:bold">⬅️ العودة للصفحة الرئيسية</a>
+
+  <script>
+    async function loadStats() {
+      const res = await fetch('/api/stats_data');
+      const data = await res.json();
+
+      document.getElementById("usedTotal").innerText = data.used_total;
+      document.getElementById("topProduct").innerText = data.top_product || 'غير متوفر';
+      document.getElementById("wastedTotal").innerText = data.wasted_total;
+
+      const ctx = document.getElementById("usageChart").getContext("2d");
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.usage_chart.labels,
+          datasets: [{
+            label: 'منتجات مستخدمة',
+            data: data.usage_chart.values,
+            backgroundColor: '#007acc'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("theme") === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      loadStats();
+    });
+  </script>
+</body>
+</html>

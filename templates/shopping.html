@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>🛒 سلة التسوق</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(to bottom right, #e0f7ff, #f9fcff);
+      --text-color: #333;
+      --card-bg: #fff;
+      --button-bg: #007acc;
+      --button-hover: #005a9c;
+      --danger-bg: #ff4d4d;
+      --danger-hover: #e60000;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text-color: #eee;
+      --card-bg: #1f1f1f;
+      --button-bg: #0098d8;
+      --button-hover: #0071a8;
+      --danger-bg: #cc4444;
+      --danger-hover: #992222;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Cairo', sans-serif;
+      color: var(--text-color);
+      padding: 20px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      color: #007acc;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+
+    li {
+      background: var(--card-bg);
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 16px;
+      direction: rtl;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    button.remove {
+      background-color: var(--danger-bg);
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button.remove:hover {
+      background-color: var(--danger-hover);
+    }
+
+    form {
+      margin-top: 30px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 200px;
+    }
+
+    button.add, button.sms {
+      background-color: var(--button-bg);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      margin: 10px 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button.add:hover, button.sms:hover {
+      background-color: var(--button-hover);
+    }
+
+    #qrImage {
+      max-width: 250px;
+      display: none;
+      margin: 20px auto;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 سلة التسوق</h1>
+
+  <section>
+    <ul id="cartItems">
+      {% if cart %}
+        {% for item in cart %}
+          <li>
+            <span>{{ item.name }} × {{ item.quantity }}</span>
+            <button class="remove" onclick="removeItem('{{ item.name }}')">🗑 حذف</button>
+          </li>
+        {% endfor %}
+      {% else %}
+        <li>🧺 السلة فارغة</li>
+      {% endif %}
+    </ul>
+    <button onclick="showQR()" class="add">📷 عرض كود QR</button>
+  </section>
+
+  <div>
+    <img id="qrImage" src="" alt="كود QR لسلة التسوق">
+  </div>
+
+  <form onsubmit="return addManualItem(this)">
+    <input type="text" name="item" placeholder="اسم العنصر" required>
+    <button type="submit" class="add">➕ أضف يدويًا</button>
+  </form>
+
+  <script>
+    function loadCart() {
+      fetch("/api/shopping")
+        .then(res => res.json())
+        .then(data => {
+          const ul = document.getElementById("cartItems");
+          ul.innerHTML = "";
+          if (!data.length) {
+            ul.innerHTML = "<li>🧺 السلة فارغة</li>";
+            return;
+          }
+          data.forEach(item => {
+            ul.innerHTML += `
+              <li>
+                <span>${item.name} × ${item.quantity}</span>
+                <button class="remove" onclick="removeItem('${item.name}')">🗑 حذف</button>
+              </li>`;
+          });
+        });
+    }
+
+    function addManualItem(form) {
+      const item = form.item.value.trim();
+      if (!item) return false;
+      fetch("/api/shopping/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [item] })
+      }).then(() => {
+        form.reset();
+        loadCart();
+      });
+      return false;
+    }
+
+    function removeItem(itemName) {
+      fetch("/api/shopping/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item: itemName })
+      }).then(() => loadCart());
+    }
+
+    function showQR() {
+      fetch("/api/qr_shopping")
+        .then(res => {
+          if (res.status === 200) return res.blob();
+          else throw new Error("❌ لا توجد سلة أو حدث خطأ");
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const img = document.getElementById("qrImage");
+          img.src = url;
+          img.style.display = "block";
+        })
+        .catch(() => alert("❌ لا توجد عناصر في السلة"));
+    }
+
+    loadCart();
+    setInterval(loadCart, 5000);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    });
+  </script>
+</body>
+</html>

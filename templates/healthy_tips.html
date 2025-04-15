@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>✨ نصيحة صحية اليوم</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f8ff;
+      --text: #333;
+      --tip-bg: linear-gradient(135deg, #ffffff, #e6f2ff);
+      --tip-border: #a6dcef;
+      --tip-color: #007acc;
+      --btn-bg: #007acc;
+      --btn-hover: #005a99;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --tip-bg: #1f1f1f;
+      --tip-border: #4aa4c8;
+      --tip-color: #66d9ef;
+      --btn-bg: #0098d8;
+      --btn-hover: #0071a8;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Cairo', sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text);
+      direction: rtl;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    h1 {
+      color: var(--tip-color);
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+
+    .tip-box {
+      background: var(--tip-bg);
+      border: 2px solid var(--tip-border);
+      border-radius: 16px;
+      padding: 25px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-size: 20px;
+      line-height: 1.8;
+      color: var(--tip-color);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 10px 20px;
+      background-color: var(--btn-bg);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    .back-link:hover {
+      background-color: var(--btn-hover);
+    }
+  </style>
+</head>
+<body>
+  <h1>✨ نصيحة صحية اليوم</h1>
+  <div class="tip-box" id="tipBox">
+    جاري جلب النصيحة...
+  </div>
+
+  <a href="/" class="back-link">⬅️ العودة إلى الصفحة الرئيسية</a>
+
+  <script>
+    const tips = [
+      "💧 اشرب 8 أكواب ماء يوميًا للحفاظ على نشاط جسمك.",
+      "🍎 تناول الفواكه بدلًا من السكاكر للحصول على فيتامينات طبيعية.",
+      "🥗 ابدأ وجبتك بطبق من السلطة لتشعر بالشبع بسرعة.",
+      "🚶‍♂️ امشِ 30 دقيقة يوميًا لتحسين المزاج والدورة الدموية.",
+      "🌙 نم مبكرًا لتساعد جسمك على الراحة واستعادة الطاقة.",
+      "🥦 الخضار الورقية مثل السبانخ مفيدة لصحة القلب.",
+      "🍞 اختر الحبوب الكاملة بدلًا من البيضاء لتثبيت سكر الدم.",
+      "🍳 لا تهمل وجبة الإفطار فهي تمنحك طاقة أول اليوم.",
+      "☕ قلل من شرب الكافيين بعد العصر لتحسين نومك.",
+      "🧘 مارس تمارين التنفس لتقليل التوتر والقلق.",
+      "🍲 تناول الطعام ببطء يساعد على الشعور بالشبع.",
+      "🥤 تجنب المشروبات الغازية لحماية العظام والأسنان.",
+      "🛏️ نم من 6 إلى 8 ساعات يوميًا للحفاظ على توازن الجسم.",
+      "🍗 اختر اللحوم قليلة الدهون وتجنب المعالجة.",
+      "🍯 استبدل السكر بالعسل الطبيعي بكمية معتدلة.",
+      "🧀 تجنب الإفراط في تناول الأجبان المالحة.",
+      "🥛 اختر الحليب قليل الدسم لصحة القلب.",
+      "🍵 اشرب الأعشاب الطبيعية لتهدئة المعدة.",
+      "🧃 لا تنسَ تناول فيتامين C لتقوية المناعة.",
+      "🧼 اغسل يديك قبل وبعد الأكل لتجنب العدوى."
+    ];
+
+    function showRandomTip() {
+      const tip = tips[Math.floor(Math.random() * tips.length)];
+      document.getElementById("tipBox").innerText = tip;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      showRandomTip();
+    });
+  </script>
+</body>
+</html>

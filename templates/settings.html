@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>⚙️ إعدادات الثلاجة الذكية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4faff;
+      --text: #333;
+      --card: #ffffff;
+      --primary: #007acc;
+      --primary-hover: #005fa3;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --card: #1e1e1e;
+      --primary: #66d9ef;
+      --primary-hover: #4db8d8;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Cairo', sans-serif;
+      color: var(--text);
+      text-align: center;
+      padding: 30px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 30px;
+    }
+
+    .settings-container {
+      max-width: 500px;
+      margin: auto;
+      background: var(--card);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: right;
+      direction: rtl;
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      margin: 20px 0 10px;
+    }
+
+    select, input[type="checkbox"] {
+      margin-top: 5px;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    .save-button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .save-button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚙️ إعدادات الثلاجة الذكية</h1>
+
+  <div class="settings-container">
+    <form id="settingsForm">
+      <label>
+        🔔 صوت الإشعارات:
+        <input type="checkbox" id="soundToggle">
+      </label>
+
+      <label>
+        🎨 وضع العرض:
+        <select id="themeSelect">
+          <option value="light">وضع فاتح</option>
+          <option value="dark">وضع داكن</option>
+        </select>
+      </label>
+
+      <button type="submit" class="save-button">💾 حفظ الإعدادات</button>
+    </form>
+
+    <a href="/" class="back-link">⬅️ العودة للصفحة الرئيسية</a>
+  </div>
+
+  <script>
+    window.onload = function() {
+      const sound = localStorage.getItem("notif_sound");
+      const theme = localStorage.getItem("theme");
+
+      document.getElementById("soundToggle").checked = (sound !== "off");
+      if (theme) document.getElementById("themeSelect").value = theme;
+    };
+
+    document.getElementById("settingsForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const sound = document.getElementById("soundToggle").checked ? "on" : "off";
+      const theme = document.getElementById("themeSelect").value;
+
+      localStorage.setItem("notif_sound", sound);
+      localStorage.setItem("theme", theme);
+
+      document.documentElement.setAttribute("data-theme", theme);
+
+      alert("✅ تم حفظ الإعدادات!");
+    });
+  </script>
+</body>
+</html>

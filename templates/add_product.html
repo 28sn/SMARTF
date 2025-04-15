@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>➕ إضافة منتج جديد</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4faff;
+      --text: #333;
+      --card: #fff;
+      --primary: #007acc;
+      --primary-hover: #005fa3;
+      --primary-active: #003d7a;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --card: #1e1e1e;
+      --primary: #0098d8;
+      --primary-hover: #0071a8;
+      --primary-active: #004f7a;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      text-align: center;
+      direction: rtl;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 600px;
+      background-color: var(--card);
+      padding: 30px;
+      margin: 0 auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+      text-align: right;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .button-container {
+      margin-top: 20px;
+    }
+
+    .submit-button {
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background-color: var(--primary);
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .submit-button:active {
+      background-color: var(--primary-active);
+    }
+
+    .scan-button {
+      background-color: var(--primary);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .scan-button:hover {
+      background-color: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>إضافة منتج جديد إلى الثلاجة</h1>
+
+    <form method="POST" action="{{ url_for('add_product') }}" onsubmit="return checkAllergy()">
+      <div class="input-group">
+        <label for="productName">اسم المنتج:</label>
+        <input type="text" id="productName" name="productName" required placeholder="أدخل اسم المنتج">
+      </div>
+
+      <div class="input-group">
+        <label for="brand">العلامة التجارية:</label>
+        <input type="text" id="brand" name="brand" required placeholder="أدخل العلامة التجارية">
+      </div>
+
+      <div class="input-group">
+        <label for="ingredients">المكونات:</label>
+        <input type="text" id="ingredients" name="ingredients" placeholder="أدخل المكونات (اختياري)">
+      </div>
+
+      <div class="input-group">
+        <label for="energy">الطاقة (بالكيلو كالوري):</label>
+        <input type="number" id="energy" name="energy" placeholder="أدخل الطاقة (اختياري)">
+      </div>
+
+      <div class="input-group">
+        <label for="expirationDate">تاريخ الانتهاء:</label>
+        <input type="date" id="expirationDate" name="expirationDate" required>
+      </div>
+
+      <div class="input-group">
+        <label for="barcode">الباركود:</label>
+        <input type="text" id="barcode" name="barcode" required placeholder="أدخل الباركود">
+      </div>
+
+      <button type="submit" class="submit-button">إضافة المنتج</button>
+    </form>
+
+    <div class="button-container">
+      <a href="{{ url_for('scan_mobile_full') }}">
+        <button class="scan-button">📱 امسح الباركود من الجوال</button>
+      </a>      
+    </div>
+  </div>
+
+  <script>
+    function checkAllergy() {
+      const allergies = JSON.parse(localStorage.getItem("allergy_list") || "[]");
+      const ingredients = document.getElementById("ingredients").value.toLowerCase();
+      let flagged = [];
+      allergies.forEach(item => {
+        if (ingredients.includes(item.toLowerCase())) {
+          flagged.push(item);
+        }
+      });
+      if (flagged.length > 0) {
+        return confirm(`⚠️ تنبيه: هذا المنتج يحتوي على مواد قد تكون خطرة عليك:\n${flagged.join(",\n")}\nهل ترغب في المتابعة؟`);
+      }
+      return true;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    });
+  </script>
+</body>
+</html>

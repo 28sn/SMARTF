@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📤 إخراج منتج</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    :root {
+      --bg: #f7fbff;
+      --text: #333;
+      --primary: #007acc;
+      --status: green;
+      --card-bg: #fff;
+      --remove-bg: #ff5e57;
+      --remove-hover: #d94b47;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --primary: #66d9ef;
+      --status: #90ee90;
+      --card-bg: #1e1e1e;
+      --remove-bg: #cc4444;
+      --remove-hover: #aa3333;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      text-align: center;
+      padding: 30px;
+      direction: rtl;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1, h2 {
+      color: var(--primary);
+    }
+
+    .section {
+      margin: 40px 0;
+    }
+
+    #reader {
+      width: 300px;
+      margin: auto;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: var(--status);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    li {
+      background: var(--card-bg);
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    button.remove {
+      background-color: var(--remove-bg);
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button.remove:hover {
+      background-color: var(--remove-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📤 إخراج منتج من الثلاجة</h1>
+
+  <div class="section">
+    <h2>📷 امسح الباركود</h2>
+    <div id="reader"></div>
+    <p id="status">📸 وجه الكاميرا نحو الباركود...</p>
+  </div>
+
+  <div class="section">
+    <h2>🧾 أو اختر من القائمة</h2>
+    <ul id="productList">
+      <li>جارٍ تحميل المنتجات...</li>
+    </ul>
+  </div>
+
+  <script>
+    function onScanSuccess(decodedText) {
+      document.getElementById("status").innerText = "🔄 جارٍ إخراج المنتج...";
+      fetch("/api/remove_product_by_barcode?barcode=" + encodeURIComponent(decodedText))
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById("status").innerText = "✅ تم إخراج المنتج بنجاح";
+            loadProducts();
+          } else {
+            document.getElementById("status").innerText = "❌ " + (data.message || "فشل في إخراج المنتج");
+          }
+        })
+        .catch(() => {
+          document.getElementById("status").innerText = "❌ تعذر الاتصال بالخادم.";
+        });
+    }
+
+    function onScanFailure(error) {}
+
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: { exact: "environment" }, width: { exact: 1280 }, height: { exact: 720 } },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess,
+      onScanFailure
+    );
+
+    function loadProducts() {
+      fetch("/api/products")
+        .then(res => res.json())
+        .then(products => {
+          const ul = document.getElementById("productList");
+          ul.innerHTML = "";
+          if (!products.length) {
+            ul.innerHTML = "<li>🚫 لا توجد منتجات حالياً</li>";
+            return;
+          }
+          products.forEach(p => {
+            const display = p.name || p.product_name || p.barcode || "منتج غير معروف";
+            ul.innerHTML += `
+              <li>
+                <span>${display}</span>
+                <button class="remove" onclick="removeByName('${display}')">📤 إخراج</button>
+              </li>`;
+          });
+        });
+    }
+
+    function removeByName(name) {
+      fetch("/api/remove_product_by_name", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+      }).then(() => loadProducts());
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+      loadProducts();
+    });
+  </script>
+
+</body>
+</html>
