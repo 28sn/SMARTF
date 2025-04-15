@@ -1,8 +1,0 @@
-name: Omelette
-ingredients: eggs, milk, salt
-
-name: Milkshake
-ingredients: milk, banana, sugar
-
-name: Toast
-ingredients: bread, butter
