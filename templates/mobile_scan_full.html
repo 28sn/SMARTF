@@ -5,31 +5,57 @@
   <title>📷 مسح الباركود</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
+    :root {
+      --bg: #f2faff;
+      --text: #222;
+      --accent: #007acc;
+      --box: #fff;
+      --success: #28a745;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --text: #eee;
+      --accent: #00cfff;
+      --box: #1f1f1f;
+      --success: #00e676;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f2faff;
+      background: var(--bg);
+      color: var(--text);
       text-align: center;
       padding: 30px;
       direction: rtl;
+      transition: background 0.3s ease, color 0.3s ease;
     }
-    h1 {
-      color: #007acc;
-    }
+
+    h1 { color: var(--accent); margin-bottom: 10px; }
+
     #reader {
       width: 100%;
       max-width: 360px;
       margin: 20px auto;
       display: none;
-      border: 2px solid #ccc;
+      border: 2px solid var(--accent);
       border-radius: 10px;
       padding: 10px;
-      background-color: #fff;
+      background-color: var(--box);
     }
+
     #status {
       font-size: 16px;
       margin-top: 20px;
-      color: #007acc;
+      color: var(--accent);
     }
+
+    #scannedText {
+      margin-top: 20px;
+      font-size: 16px;
+      color: var(--success);
+    }
+
     #cameraSelect, #resolutionSelect {
       margin-top: 10px;
       padding: 10px;
@@ -37,9 +63,10 @@
       border-radius: 8px;
       border: 1px solid #ccc;
     }
+
     .start-btn {
       margin-top: 15px;
-      background-color: #007acc;
+      background-color: var(--accent);
       color: white;
       border: none;
       padding: 10px 20px;
@@ -47,14 +74,28 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    #scannedText {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #28a745;
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--accent);
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent);
+      color: white;
     }
   </style>
 </head>
 <body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 تبديل الثيم</button>
   <h1>📦 امسح الباركود لإضافة منتج</h1>
 
   <select id="cameraSelect"></select>
@@ -73,7 +114,6 @@
     const reader = new Html5Qrcode("reader");
     const cameraSelect = document.getElementById("cameraSelect");
     const resolutionSelect = document.getElementById("resolutionSelect");
-    let cameras = [];
 
     function onScanSuccess(decodedText) {
       document.getElementById("scannedText").innerText = `✅ الباركود: ${decodedText}`;
@@ -95,9 +135,7 @@
       });
     }
 
-    function onScanFailure() {
-      // تجاهل مؤقتًا
-    }
+    function onScanFailure() {}
 
     function parseResolution(value) {
       const [w, h] = value.split("x").map(Number);
@@ -115,7 +153,18 @@
       document.getElementById("reader").style.display = "block";
       reader.start(
         { deviceId: { exact: selectedId } },
-        { fps: 10, qrbox: 250, ...resolution },
+        {
+          fps: 10,
+          qrbox: 250,
+          ...resolution,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128
+          ]
+        },
         onScanSuccess,
         onScanFailure
       ).then(() => {
@@ -126,13 +175,12 @@
     }
 
     Html5Qrcode.getCameras().then(devices => {
-      cameras = devices;
-      if (cameras.length === 0) {
+      if (devices.length === 0) {
         document.getElementById("status").innerText = "❌ لم يتم العثور على كاميرا.";
         return;
       }
 
-      cameras.forEach(cam => {
+      devices.forEach(cam => {
         const option = document.createElement("option");
         option.value = cam.id;
         option.text = cam.label || "كاميرا";
@@ -143,6 +191,18 @@
     }).catch(() => {
       document.getElementById("status").innerText = "❌ تعذر الوصول إلى الكاميرا.";
     });
+
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+      localStorage.setItem("theme_mode", isDark ? "light" : "dark");
+    }
+
+    // تحميل الثيم من localStorage
+    const savedTheme = localStorage.getItem("theme_mode");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    }
   </script>
 </body>
 </html>
