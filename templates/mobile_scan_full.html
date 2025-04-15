@@ -2,60 +2,50 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <title>📷 مسح الباركود</title>
+  <title>📷 مسح الباركود الشريطي</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     :root {
-      --bg: #f2faff;
-      --text: #222;
-      --accent: #007acc;
-      --box: #fff;
+      --bg: #f4faff;
+      --text: #333;
+      --status: #007acc;
       --success: #28a745;
     }
-
     [data-theme="dark"] {
       --bg: #121212;
       --text: #eee;
-      --accent: #00cfff;
-      --box: #1f1f1f;
-      --success: #00e676;
+      --status: #4dabf7;
+      --success: #58d68d;
     }
-
     body {
       font-family: 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
+      margin: 0;
       text-align: center;
-      padding: 30px;
       direction: rtl;
       transition: background 0.3s ease, color 0.3s ease;
     }
-
-    h1 { color: var(--accent); margin-bottom: 10px; }
-
+    h1 {
+      color: var(--status);
+      padding: 15px;
+    }
     #reader {
-      width: 100%;
-      max-width: 360px;
-      margin: 20px auto;
-      display: none;
-      border: 2px solid var(--accent);
-      border-radius: 10px;
-      padding: 10px;
-      background-color: var(--box);
+      width: 100vw;
+      height: 75vh;
+      margin: auto;
+      border-top: 2px solid var(--status);
     }
-
     #status {
+      padding: 15px;
       font-size: 16px;
-      margin-top: 20px;
-      color: var(--accent);
+      color: var(--status);
     }
-
     #scannedText {
-      margin-top: 20px;
-      font-size: 16px;
+      font-size: 18px;
       color: var(--success);
+      font-weight: bold;
     }
-
     #cameraSelect, #resolutionSelect {
       margin-top: 10px;
       padding: 10px;
@@ -63,10 +53,9 @@
       border-radius: 8px;
       border: 1px solid #ccc;
     }
-
     .start-btn {
       margin-top: 15px;
-      background-color: var(--accent);
+      background-color: var(--status);
       color: white;
       border: none;
       padding: 10px 20px;
@@ -74,28 +63,20 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
-    .theme-toggle {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: transparent;
-      color: var(--text);
-      border: 2px solid var(--accent);
-      padding: 6px 12px;
-      border-radius: 20px;
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
       cursor: pointer;
-      font-size: 14px;
-    }
-
-    .theme-toggle:hover {
-      background: var(--accent);
-      color: white;
+      color: var(--status);
     }
   </style>
 </head>
-<body>
-  <button class="theme-toggle" onclick="toggleTheme()">🌓 تبديل الثيم</button>
+<body data-theme-init>
+  <button class="toggle-btn" onclick="toggleTheme()">🌓</button>
   <h1>📦 امسح الباركود لإضافة منتج</h1>
 
   <select id="cameraSelect"></select>
@@ -114,10 +95,11 @@
     const reader = new Html5Qrcode("reader");
     const cameraSelect = document.getElementById("cameraSelect");
     const resolutionSelect = document.getElementById("resolutionSelect");
+    let cameras = [];
 
     function onScanSuccess(decodedText) {
-      document.getElementById("scannedText").innerText = `✅ الباركود: ${decodedText}`;
-      document.getElementById("status").innerText = "🔄 جارٍ معالجة المنتج...";
+      document.getElementById("scannedText").innerText = `✅ الكود: ${decodedText}`;
+      document.getElementById("status").innerText = "🔄 جاري معالجة المنتج...";
 
       reader.stop().then(() => {
         fetch("/api/auto_add_product?barcode=" + encodeURIComponent(decodedText))
@@ -154,33 +136,41 @@
       reader.start(
         { deviceId: { exact: selectedId } },
         {
-          fps: 10,
-          qrbox: 250,
-          ...resolution,
+          fps: 15,
+          aspectRatio: 1.777,
+          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
           formatsToSupport: [
             Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.CODE_128
-          ]
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.UPC_A
+          ],
+          ...resolution
         },
         onScanSuccess,
         onScanFailure
       ).then(() => {
-        document.getElementById("status").innerText = "📡 جاري المسح...";
+        document.getElementById("status").innerText = "📡 الكاميرا تعمل... وجاري المسح";
       }).catch(err => {
         document.getElementById("status").innerText = "❌ تعذر تشغيل الكاميرا: " + err;
       });
     }
 
+    function toggleTheme() {
+      const root = document.documentElement;
+      const isDark = root.getAttribute("data-theme") === "dark";
+      const newTheme = isDark ? "light" : "dark";
+      root.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+    }
+
     Html5Qrcode.getCameras().then(devices => {
-      if (devices.length === 0) {
+      cameras = devices;
+      if (cameras.length === 0) {
         document.getElementById("status").innerText = "❌ لم يتم العثور على كاميرا.";
         return;
       }
 
-      devices.forEach(cam => {
+      cameras.forEach(cam => {
         const option = document.createElement("option");
         option.value = cam.id;
         option.text = cam.label || "كاميرا";
@@ -188,21 +178,14 @@
       });
 
       document.getElementById("status").innerText = "✅ الكاميرا جاهزة، اختر واحدة وابدأ المسح.";
+
+      const saved = localStorage.getItem("theme");
+      if (saved === "dark") {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
     }).catch(() => {
       document.getElementById("status").innerText = "❌ تعذر الوصول إلى الكاميرا.";
     });
-
-    function toggleTheme() {
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
-      localStorage.setItem("theme_mode", isDark ? "light" : "dark");
-    }
-
-    // تحميل الثيم من localStorage
-    const savedTheme = localStorage.getItem("theme_mode");
-    if (savedTheme) {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    }
   </script>
 </body>
 </html>
